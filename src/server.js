@@ -1,37 +1,21 @@
 import http from 'node:http';
-import  {randomUUID } from 'node:crypto';
 
 import { json } from './middlewares/json.js';
-import { Database } from './database.js';
-
-
-const db = new Database();
+import { routes } from './routes.js';
 
 const server = http.createServer(async (req, res) => {
-  const {method, url} = req;
+  const { method, url } = req;
 
   await json(req, res);
 
-  if (method === 'GET' && url === '/users') {
-    const users = db.select('users');
-    return res
-      .end(JSON.stringify(users));
-  }
+  const route = routes.find(route => route.method === method && route.path.test(url));
 
-  if (method === 'POST' && url === '/users') {
-    const {name, email} = req.body;
+  if (route) {
+    const routeParams = req.url.match(route.path);
 
-    const user = {
-      id: randomUUID(),
-      name,
-      email,
-    };
+    req.params = {...routeParams.groups};
 
-    db.insert('users', user)
-
-    return res
-      .writeHead(201)
-      .end();
+    return route.handler(req, res);
   }
 
   return res
@@ -39,4 +23,4 @@ const server = http.createServer(async (req, res) => {
     .end();
 });
 
-server.listen(3333);
+server.listen(3333, () => console.log('listening on port 3333...'));
