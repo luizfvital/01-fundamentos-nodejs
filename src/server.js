@@ -2,7 +2,9 @@ import http from 'node:http';
 
 import { json } from './middlewares/json.js';
 import { routes } from './routes.js';
-import { extractQueryParams } from './utils/extract-query-params.js'
+import { extractQueryParams } from './utils/extract-query-params.js';
+
+const SERVER_PORT = 3333;
 
 const server = http.createServer(async (req, res) => {
   const { method, url } = req;
@@ -14,7 +16,7 @@ const server = http.createServer(async (req, res) => {
   if (route) {
     const routeParams = req.url.match(route.path);
 
-    const { query, ...params} = routeParams.groups;
+    const { query, ...params } = routeParams.groups;
 
     req.params = params;
     req.query = query ? extractQueryParams(query) : {};
@@ -27,4 +29,4 @@ const server = http.createServer(async (req, res) => {
     .end();
 });
 
-server.listen(3333, () => console.log('listening on port 3333...'));
+server.listen(SERVER_PORT, () => console.log('listening on port ' + SERVER_PORT + '...'));

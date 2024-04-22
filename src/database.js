@@ -21,7 +21,7 @@ export class Database {
 
     return data;
   }
-
+r
   insert(table, data) {
     if(this.#database[table]) {
       this.#database[table].push(data);
